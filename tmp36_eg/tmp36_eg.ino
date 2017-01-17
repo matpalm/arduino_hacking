@@ -10,6 +10,7 @@
 
 void setup() {
   Serial.begin(115200);
+  // Serial.println(ESP.getResetReason());
 }
 
 void loop() {
@@ -19,6 +20,8 @@ void loop() {
 
   Serial.print("temp ");
   Serial.println(temp);
-  
+
+  // either deep sleep or delay for 1s
+  //ESP.deepSleep(1*1000000, WAKE_RF_DEFAULT); // 1s
   delay(1000);
 }
