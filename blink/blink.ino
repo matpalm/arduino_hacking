@@ -1,4 +1,5 @@
-// feather huzzah smoke test; just blinks onboard red led
+// feather huzzah smoke test; just blinks onboard red led & 
+// writes "blink" to serial port
 
 void setup() {
   Serial.begin(115200);

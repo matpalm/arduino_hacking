@@ -1,3 +1,5 @@
+// note: deep sleep requires short from 16 to RST
+
 void setup() {
   Serial.begin(115200);
   Serial.println();  
