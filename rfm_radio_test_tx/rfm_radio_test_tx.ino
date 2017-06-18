@@ -1,5 +1,6 @@
 // rfm69hcw feather 32u4 radio test
 // transmission RX
+// forked from radio head examples
 
 #include <SPI.h>
 #include <RH_RF69.h>
@@ -13,7 +14,7 @@
 
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
-uint8_t node = 13;
+uint8_t node = 14;
 uint16_t sequence_number = 0; 
 
 void setup() 
@@ -59,22 +60,27 @@ void setup()
   Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
 }
 
-
+struct packet {
+  uint8_t node;
+  uint16_t sequence_number;
+  float sequence_number_as_float;
+};
 
 void loop() {
   delay(500);  // Wait 1 second between transmits, could also 'sleep' here!
 
-  float sequence_number_as_float = (float)sequence_number / 3;
+  packet p;
+  p.node = node;
+  p.sequence_number = sequence_number;
+  p.sequence_number_as_float = (float)sequence_number / 3;
   
-  uint8_t buf[7];  
-  memcpy(&buf, &node, 1);                         // 1 byte node id
-  memcpy(&buf[1], &sequence_number, 2);           // 2 byte sequence  
-  memcpy(&buf[3], &sequence_number_as_float, 4);  // 4 bytes float
+  uint8_t buf[sizeof(packet)];
+  memcpy(&buf, &p, sizeof(packet));
   
   Serial.print("Sending ");
   Serial.print(sequence_number);
   Serial.print(" ");
-  Serial.print(sequence_number_as_float);
+  Serial.print(p.sequence_number_as_float);
   Serial.println();
   
   rf69.send(buf, 7);
@@ -82,7 +88,7 @@ void loop() {
 
   sequence_number++;
   
-  Blink(LED, 50, 3); //blink LED 3 times, 50ms between blinks
+  //Blink(LED, 50, 3); //blink LED 3 times, 50ms between blinks
 }
 
 void Blink(byte PIN, byte DELAY_MS, byte loops) {
