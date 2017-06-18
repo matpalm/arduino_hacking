@@ -63,10 +63,15 @@ void setup()
   Serial.println(RH_RF69_MAX_MESSAGE_LEN);
 }
 
+struct packet {
+  uint8_t node;
+  uint16_t sequence_number;
+  float sequence_number_as_float;
+};
 
 void loop() {
  if (rf69.available()) {
-    uint8_t buf[7];
+    uint8_t buf[sizeof(packet)];
     uint8_t len = sizeof(buf);
     if (rf69.recv(buf, &len)) {
       if (!len) return;
@@ -77,19 +82,14 @@ void loop() {
       Serial.print(rf69.lastRssi());
 
       // unpack
-      uint8_t node;
-      memcpy(&node, &buf, 1);
-      uint16_t sequence_number;
-      memcpy(&sequence_number, &buf[1], 2);
-      float sequence_number_as_float;
-      memcpy(&sequence_number_as_float, &buf[3], 4);
-
-      Serial.print(" node:"); Serial.print(node);
-      Serial.print(" sequence_number:"); Serial.print(sequence_number);
-      Serial.print(" sequence_number_as_float:"); Serial.print(sequence_number_as_float);
+      packet p;
+      memcpy(&p, &buf, sizeof(packet));
+      Serial.print(" node:"); Serial.print(p.node);
+      Serial.print(" sequence_number:"); Serial.print(p.sequence_number);
+      Serial.print(" sequence_number_as_float:"); Serial.print(p.sequence_number_as_float);
       Serial.println();
       
-      Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
+      //Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
     } else {
       Serial.println("Receive failed");
     }
