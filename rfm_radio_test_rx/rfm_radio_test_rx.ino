@@ -58,32 +58,38 @@ void setup()
   pinMode(LED, OUTPUT);
 
   Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
+
+  Serial.print("RH_RF69_MAX_MESSAGE_LEN ");
+  Serial.println(RH_RF69_MAX_MESSAGE_LEN);
 }
 
 
 void loop() {
  if (rf69.available()) {
-    // Should be a message for us now   
-    uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+    uint8_t buf[7];
     uint8_t len = sizeof(buf);
     if (rf69.recv(buf, &len)) {
       if (!len) return;
-      buf[len] = 0;
       Serial.print("Received [");
       Serial.print(len);
       Serial.print("]: ");
-      Serial.println((char*)buf);
       Serial.print("RSSI: ");
-      Serial.println(rf69.lastRssi(), DEC);
+      Serial.print(rf69.lastRssi());
 
-      if (strstr((char *)buf, "Hello World")) {
-        // Send a reply!
-        uint8_t data[] = "And hello back to you";
-        rf69.send(data, sizeof(data));
-        rf69.waitPacketSent();
-        Serial.println("Sent a reply");
-        Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
-      }
+      // unpack
+      uint8_t node;
+      memcpy(&node, &buf, 1);
+      uint16_t sequence_number;
+      memcpy(&sequence_number, &buf[1], 2);
+      float sequence_number_as_float;
+      memcpy(&sequence_number_as_float, &buf[3], 4);
+
+      Serial.print(" node:"); Serial.print(node);
+      Serial.print(" sequence_number:"); Serial.print(sequence_number);
+      Serial.print(" sequence_number_as_float:"); Serial.print(sequence_number_as_float);
+      Serial.println();
+      
+      Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
     } else {
       Serial.println("Receive failed");
     }
